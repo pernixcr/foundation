@@ -15,6 +15,42 @@ def build_driver():
     return webdriver.Chrome(options=options)
 
 
+def register_pacient(driver, username, password, first_name, last_name):
+    """Complete a register pacient form"""
+    driver.get('http://127.0.0.1:8000/')
+    sleep(1)
+
+    # Go to login page
+
+    login_button = driver.find_element_by_link_text('Login')
+    login_button.click()
+    sleep(3)
+
+    username_field = driver.find_element_by_xpath(
+        '/html/body/div[1]/div/div[2]/div/div[2]/form/div[1]/input')
+    password_field = driver.find_element_by_xpath(
+        '/html/body/div[1]/div/div[2]/div/div[2]/form/div[2]/input')
+    verifiy_password_field = driver.find_element_by_xpath(
+        '/html/body/div[1]/div/div[2]/div/div[2]/form/div[3]/input')
+    first_name_field = driver.find_element_by_xpath(
+        '/html/body/div[1]/div/div[2]/div/div[2]/form/div[4]/input')
+    last_name_field = driver.find_element_by_xpath(
+        '/html/body/div[1]/div/div[2]/div/div[2]/form/div[5]/input')
+
+    username_field.send_keys(username)
+    password_field.send_keys(password)
+    verifiy_password_field.send_keys(password)
+    first_name_field.send_keys(first_name)
+    last_name_field.send_keys(last_name)
+
+    # Submit
+
+    submit_button = driver.find_element_by_xpath(
+        '/html/body/div[1]/div/div[2]/div/div[2]/form/div[6]/button')
+    submit_button.click()
+    sleep(2)
+
+
 def login(driver, username, password):
     """Do a login.
 
@@ -89,7 +125,7 @@ def add_todo(driver, username, title, physician_full_name=None):
     sleep(2)
 
     # Tag physician
-    
+
     if physician_full_name:
 
         tag_dialog_div = driver.find_element_by_xpath(
@@ -102,7 +138,7 @@ def add_todo(driver, username, title, physician_full_name=None):
                 physician.click()
                 break
 
-    # Submit 
+    # Submit
     sleep(1)
 
     driver.find_element_by_xpath(

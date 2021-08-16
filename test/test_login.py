@@ -1,5 +1,5 @@
 """Test login pages"""
-from common import login, build_driver
+from common import login, register_pacient, build_driver
 
 
 BASE_URL = 'http://127.0.0.1:8000'
@@ -25,6 +25,31 @@ def test_admin_login():
         assert driver.current_url == '{}/project/{}/#/'.format(
             BASE_URL, username), 'Login failed: user -> {}'.format(username)
 
+    finally:
+        driver.quit()
+
+
+def test_register_pacient():
+    """Test register a pacient throw the register form
+    """
+    # Prepare test
+    driver = build_driver()
+
+    username = 'temp-pacient2@mail.com'
+    password = 'abc12345'
+    first_name = 'Temporaly'
+    last_name = 'pacient-1'
+
+    try:
+        # Run test
+        register_pacient(driver, username, password, first_name, last_name)
+
+        # Check result
+        assert driver.current_url == '{}/u/home/'.format(
+            BASE_URL, username), 'Login failed: user -> {}'.format(username)
+
+        assert str(driver.find_element_by_xpath('/html/body/p').text).startswith(
+            'Your account is created but your profile is not verified.')
     finally:
         driver.quit()
 
