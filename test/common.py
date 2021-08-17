@@ -15,8 +15,8 @@ def build_driver():
     return webdriver.Chrome(options=options)
 
 
-def register_pacient(driver, username, password, first_name, last_name):
-    """Complete a register pacient form"""
+def register_patient(driver, username, password, first_name, last_name):
+    """Complete a register patient form"""
     driver.get('http://127.0.0.1:8000/')
     sleep(1)
 
@@ -82,23 +82,54 @@ def login(driver, username, password):
     sleep(2)
 
 
-def manage_pacient(driver, username):
-    """Go to manage a pacient.
+def approve_user(driver, username, role):
+    """Approves an user"""
+    table = driver.find_element_by_xpath(
+        '/html/body/div[2]/div/div[2]/div/div[2]/div[2]/div[2]/table')
+
+    users = table.find_elements_by_tag_name('tr')
+    del users[0]  # Remove table headers
+
+    user_found = False
+
+    # Search in users waiting approval.
+    for idx, user in enumerate(users):
+        user = user.text.split()
+
+        if user[2] == username:
+            # Assign role
+            select_role = Select(driver.find_element_by_xpath(
+                '//*[@id="ng-app"]/div[2]/div/div[2]/div[2]/div[2]/table/tbody/tr[{}]/td[3]/select'.format(idx+1)))
+            select_role.select_by_visible_text(role)
+            
+            # Approve
+            driver.find_element_by_xpath(
+                '/html/body/div[2]/div/div[2]/div/div[2]/div[2]/div[2]/table/tbody/tr[{}]/td[4]/button[1]'.format(idx+1)).click()
+            
+            user_found = True
+            break
+
+    assert user_found, 'User to be approved is not found. Username -> {}'.format(username)
+
+    sleep(1)
+
+
+def manage_patient(driver, username):
+    """Go to manage a patient.
 
     Args:
         driver : web driver
-        username (str): username of the pacient.
+        username (str): username of the patient.
     """
     table = driver.find_element_by_class_name('table')
 
-    pacients = table.find_elements_by_tag_name('tr')
-    del pacients[0]  # Remove table headers
+    users = table.find_elements_by_tag_name('tr')
+    del users[0]  # Remove table headers
 
-    for idx, pacient in enumerate(pacients):
-        pacient = pacient.text.split()
+    for idx, user in enumerate(users):
+        user = user.text.split()
 
-        if pacient[2] == username:
-            print('{}. {}'.format(idx, pacient[2]))  # username
+        if user[2] == username:
             driver.find_element_by_xpath(
                 '//*[@id="ng-app"]/div[2]/div/div[2]/div[1]/div[2]/table/tbody/tr[{}]/td[7]/a[2]'.format(idx+1)).click()
             break
@@ -110,7 +141,7 @@ def add_todo(driver, username, title, physician_full_name=None):
     """Add a todo.
 
     Args:
-        username (str): Username of the pacient. 
+        username (str): Username of the patient. 
         title (str): title of the todo.
     """
     # Add title

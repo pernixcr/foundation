@@ -1,5 +1,5 @@
 """Test login pages"""
-from common import login, register_pacient, build_driver
+from common import build_driver, login, register_patient, approve_user 
 
 
 BASE_URL = 'http://127.0.0.1:8000'
@@ -29,20 +29,20 @@ def test_admin_login():
         driver.quit()
 
 
-def test_register_pacient():
-    """Test register a pacient throw the register form
+def test_register_patient():
+    """Test register a patient throw the register form
     """
     # Prepare test
     driver = build_driver()
 
-    username = 'temp-pacient2@mail.com'
+    username = 'temp-patient2@mail.com'
     password = 'abc12345'
     first_name = 'Temporaly'
-    last_name = 'pacient-1'
+    last_name = 'patient-1'
 
     try:
         # Run test
-        register_pacient(driver, username, password, first_name, last_name)
+        register_patient(driver, username, password, first_name, last_name)
 
         # Check result
         assert driver.current_url == '{}/u/home/'.format(
@@ -54,16 +54,40 @@ def test_register_pacient():
         driver.quit()
 
 
-def test_pacient_login():
-    """Test login with a pacient user.
+def test_approve_pacient():
+
+    # Prepare test
+    driver = build_driver()
+
+    username = 'admin'
+    password = 'abc12345'
+    pacient_username = 'temp-patient2@mail.com'
+    role = 'Patient'
+    try:
+        # Login as admin
+        login(driver, username, password)
+
+        # Check result
+        assert driver.current_url == '{}/project/{}/#/'.format(
+            BASE_URL, username), 'Login failed: user -> {}'.format(username)
+
+        # Approve user
+        approve_user(driver, pacient_username, role)
+
+    finally:
+        driver.quit()
+
+
+def test_patient_login():
+    """Test login with a patient user.
 
     Requirements:
-    - Pacient user created.
+    - Patient user created.
     """
     # Prepare test
     driver = build_driver()
 
-    username = 'temp-pacient@mail.com'
+    username = 'temp-patient@mail.com'
     password = 'abc12345'
     try:
         # Run test
@@ -83,7 +107,7 @@ def test_incorrent_password_login():
     # Prepare test
     driver = build_driver()
 
-    username = 'temp-pacient1@mail.com'
+    username = 'temp-patient1@mail.com'
     password = 'abc1234511'
     try:
         # Run test
@@ -95,7 +119,3 @@ def test_incorrent_password_login():
 
     finally:
         driver.quit()
-
-
-def test_register_pacient():
-    pass
